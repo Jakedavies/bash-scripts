@@ -1,0 +1,13 @@
+#! /bin/bash
+label=$1
+if [ -z "$label" ]; then
+  echo "You must specify a pod label to exec into. Ex: \"herschel\"";
+  exit 1
+fi
+getpodscommand="kubectl get pods -o jsonpath='{.items[?(@.metadata.labels.app == \"$label\")].metadata.name}' | { read first rest ; echo \$first ; }"
+podname=`eval ${getpodscommand}`
+if [ -z "$podname" ]; then
+  echo "No pods found with label $label";
+  exit 1
+fi
+kubectl exec -it ${podname} /bin/bash -c ${label}
